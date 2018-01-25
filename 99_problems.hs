@@ -50,6 +50,12 @@ myReverse list = (myLast list):(myReverse $ init list)
 isPalindrome :: Eq a => [a] -> Bool
 isPalindrome list = myReverse list == list
 
+isPalindrome' :: Eq a => [a] -> Bool
+isPalindrome' [] = True
+isPalindrome' [x] = True
+isPalindrome' list = ((head list) == (last list))
+                  && (isPalindrome' (init $ tail list))
+
 
 -- 7. Flatten an arbitrarily-nested list
 data NestedList a = Elem a | List [NestedList a]
@@ -73,6 +79,11 @@ compress (x:xs) = if x == head xs
 pack :: Eq a => [a] -> [[a]]
 pack [] = []
 pack (x:xs) = (x : (takeWhile (== x) xs)) : pack (dropWhile (== x) xs)
+
+pack' :: Eq a => [a] -> [[a]]
+pack' [] = []
+pack' (x:xs) = (x : fst run) : (pack $ snd run)
+    where run = span (== x) xs
 
 
 -- 10. Encode runs of identical elements into tuples: 
