@@ -10,10 +10,10 @@ myLast' = head . reverse
 
 -- 2. Write a function that returns the penultimate item in a list
 myButLast :: [a] -> a
-myButLast xs
+myButLast list
     | len < 2 = error "Too few elements!"
-    | otherwise = xs !! (len - 2)
-    where len = length xs
+    | otherwise = list !! (len - 2)
+    where len = length list
 
 
 -- 3. Implement `!!`
