@@ -88,5 +88,50 @@ pack' (x:xs) = (x : fst run) : (pack $ snd run)
 
 -- 10. Encode runs of identical elements into tuples: 
 --     (<number of elements in run>, <element>)
-encode :: Eq a => [a]-> [(Int, a)]
+encode :: Eq a => [a] -> [(Int, a)]
 encode = map (\l -> (length l, head l)) . pack
+
+
+-- 11. Encode runs of identical elements into custom data type
+data OneOrMany a = Multiple Int a | Single a deriving Show
+
+encodeModified :: Eq a => [a] -> [OneOrMany a]
+encodeModified = map (\l -> if length l == 1
+                            then Single $ head l
+                            else Multiple (length l) (head l)) . pack
+
+
+-- 12. Decode a run-length encoded list
+decodeModified :: Eq a => [OneOrMany a] -> [a]
+decodeModified [] = []
+decodeModified [Single x] = [x]
+decodeModified [Multiple n x] = take n $ repeat x
+decodeModified (x:xs) = (decodeModified [x]) ++ (decodeModified xs)
+
+
+-- 13. Directly run-length encode a list without creating sublists
+encodeDirect :: Eq a => [a] -> [OneOrMany a]
+encodeDirect [] = []
+encodeDirect (x:xs) = 
+    let run = span (== x) xs
+        pkg = \l -> if length l == 1 
+                    then Single $ head l 
+                    else Multiple (length l) (head l)
+    in pkg (x : fst run) : (encodeDirect $ snd run)
+
+
+-- 14. Duplicate the elements of a list; e.g. "abc" -> "aabbcc"
+dupli :: [a] -> [a]
+dupli [] = []
+dupli (x:xs) = x:x:(dupli xs)
+
+
+-- 15. As above, but replicate the elements of a list a given number of times
+repli :: [a] -> Int -> [a]
+repli [] _ = []
+repli l n = concat [take n $ repeat x | x <- l]
+
+
+-- 16. Drop every n'th element from a list
+dropEvery :: [a] -> Int -> [a]
+dropEvery list n = map fst [x | x <- zip list [1..], snd x `mod` n /= 0]
