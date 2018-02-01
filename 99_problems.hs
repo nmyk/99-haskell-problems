@@ -25,7 +25,7 @@ elementAt list index
     -- But this doesn't work for infinite lists!
 
 elementAt' :: [a] -> Int -> a
-elementAt' list index 
+elementAt' list index
     | index < 1 = error "Index must be a positive number!"
     | null elementAtHead = error "List index out of range!"
     | otherwise = head elementAtHead
@@ -62,7 +62,7 @@ data NestedList a = Elem a | List [NestedList a]
 
 flatten :: NestedList a -> [a]
 flatten (Elem x) = [x]
-flatten (List []) = [] 
+flatten (List []) = []
 flatten (List (x:xs)) = (flatten x) ++ (flatten $ List xs)
 
 
@@ -71,7 +71,7 @@ compress :: Eq a => [a] -> [a]
 compress [] = []
 compress [x] = [x]
 compress (x:xs) = if x == head xs
-                  then compress xs 
+                  then compress xs
                   else x:(compress xs)
 
 
@@ -86,7 +86,7 @@ pack' (x:xs) = (x : fst run) : (pack $ snd run)
     where run = span (== x) xs
 
 
--- 10. Encode runs of identical elements into tuples: 
+-- 10. Encode runs of identical elements into tuples:
 --     (<number of elements in run>, <element>)
 encode :: Eq a => [a] -> [(Int, a)]
 encode = map (\l -> (length l, head l)) . pack
@@ -112,10 +112,10 @@ decodeModified (x:xs) = (decodeModified [x]) ++ (decodeModified xs)
 -- 13. Directly run-length encode a list without creating sublists
 encodeDirect :: Eq a => [a] -> [OneOrMany a]
 encodeDirect [] = []
-encodeDirect (x:xs) = 
+encodeDirect (x:xs) =
     let run = span (== x) xs
-        pkg = \l -> if length l == 1 
-                    then Single $ head l 
+        pkg = \l -> if length l == 1
+                    then Single $ head l
                     else Multiple (length l) (head l)
     in pkg (x : fst run) : (encodeDirect $ snd run)
 
