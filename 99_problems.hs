@@ -134,7 +134,7 @@ repli l n = concat [take n $ repeat x | x <- l]
 
 -- 16. Drop every n'th element from a list
 dropEvery :: [a] -> Int -> [a]
-dropEvery list n = map fst [x | x <- zip list [1..], snd x `mod` n /= 0]
+dropEvery list n = [fst x | x <- zip list [1..], snd x `mod` n /= 0]
 
 
 -- 17. Split a list into two parts, given the length of the first part
@@ -147,8 +147,7 @@ split list n = (leftSplit enumerated, rightSplit enumerated)
 
 -- 18. Extract a slice from a list
 slice :: [a] -> Int -> Int -> [a]
-slice list i j = map fst enumerated
-    where enumerated = [x | x <- zip list [1..], snd x >= i, snd x <= j]
+slice list i j = [fst x | x <- zip list [1..], snd x >= i, snd x <= j]
 
 
 -- 19. Rotate a list n places to the left
