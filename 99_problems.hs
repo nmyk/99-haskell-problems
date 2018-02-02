@@ -93,16 +93,16 @@ encode = map (\l -> (length l, head l)) . pack
 
 
 -- 11. Encode runs of identical elements into custom data type
-data OneOrMany a = Multiple Int a | Single a deriving Show
+data RunOf a = Multiple Int a | Single a deriving Show
 
-encodeModified :: Eq a => [a] -> [OneOrMany a]
+encodeModified :: Eq a => [a] -> [RunOf a]
 encodeModified = map (\l -> if length l == 1
                             then Single $ head l
                             else Multiple (length l) (head l)) . pack
 
 
 -- 12. Decode a run-length encoded list
-decodeModified :: Eq a => [OneOrMany a] -> [a]
+decodeModified :: Eq a => [RunOf a] -> [a]
 decodeModified [] = []
 decodeModified [Single x] = [x]
 decodeModified [Multiple n x] = take n $ repeat x
@@ -110,7 +110,7 @@ decodeModified (x:xs) = (decodeModified [x]) ++ (decodeModified xs)
 
 
 -- 13. Directly run-length encode a list without creating sublists
-encodeDirect :: Eq a => [a] -> [OneOrMany a]
+encodeDirect :: Eq a => [a] -> [RunOf a]
 encodeDirect [] = []
 encodeDirect (x:xs) =
     let run = span (== x) xs
@@ -140,7 +140,7 @@ dropEvery list n = [fst x | x <- zip list [1..], snd x `mod` n /= 0]
 -- 17. Split a list into two parts, given the length of the first part
 split :: [a] -> Int -> ([a], [a])
 split list n = (leftSplit enumerated, rightSplit enumerated)
-    where enumerated = [x | x <- zip list [1..]]
+    where enumerated = zip list [1..]
           leftSplit  = map fst . takeWhile ((<= n) . snd)
           rightSplit = map fst . dropWhile ((<= n) . snd)
 
