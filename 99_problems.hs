@@ -53,8 +53,8 @@ isPalindrome list = myReverse list == list
 isPalindrome' :: Eq a => [a] -> Bool
 isPalindrome' [] = True
 isPalindrome' [x] = True
-isPalindrome' list = ((head list) == (last list))
-                  && (isPalindrome' (init $ tail list))
+isPalindrome' list = head list == last list
+                  && isPalindrome' (init $ tail list)
 
 
 -- 7. Flatten an arbitrarily-nested list
@@ -63,7 +63,7 @@ data NestedList a = Elem a | List [NestedList a]
 flatten :: NestedList a -> [a]
 flatten (Elem x) = [x]
 flatten (List []) = []
-flatten (List (x:xs)) = (flatten x) ++ (flatten $ List xs)
+flatten (List (x:xs)) = flatten x ++ (flatten $ List xs)
 
 
 -- 8. Collapse adjacent identical list elements to a single element
@@ -135,3 +135,44 @@ repli l n = concat [take n $ repeat x | x <- l]
 -- 16. Drop every n'th element from a list
 dropEvery :: [a] -> Int -> [a]
 dropEvery list n = map fst [x | x <- zip list [1..], snd x `mod` n /= 0]
+
+
+-- 17. Split a list into two parts, given the length of the first part
+split :: [a] -> Int -> ([a], [a])
+split list n = (leftSplit enumerated, rightSplit enumerated)
+    where enumerated = [x | x <- zip list [1..]]
+          leftSplit  = map fst . takeWhile ((<= n) . snd)
+          rightSplit = map fst . dropWhile ((<= n) . snd)
+
+
+-- 18. Extract a slice from a list
+slice :: [a] -> Int -> Int -> [a]
+slice list i j = map fst enumerated
+    where enumerated = [x | x <- zip list [1..], snd x >= i, snd x <= j]
+
+
+-- 19. Rotate a list n places to the left
+rotate :: [a] -> Int -> [a]
+rotate l n
+    | n' > 0 = rotate (tail l ++ [head l]) $ n' - 1
+    | n' < 0 = rotate (last l : init l) $ n' + 1
+    | otherwise = l
+    where n' = n `mod` length l -- optimize a bit in case of large `n`
+
+
+-- 20. Remove the n'th element from a list
+removeAt :: Int -> [a] -> [a] -- doesn't return the deleted element
+removeAt n l
+    | (n < 1) || (n > length l) = error "Invalid index"
+    | otherwise = map fst . filter ((/= n) . snd) $ enumerated
+    where enumerated = zip l [1..]
+
+removeAt' :: Int -> [a] -> (a, [a]) -- returns deleted element and residual list
+removeAt' n l
+    | (n < 1) || (n > length l) = error "Invalid index"
+    | otherwise =
+        let enumeratedPartition = span ((/= n) . snd) $ zip l [1..]
+            left = map fst $ fst enumeratedPartition
+            removed = fst . head $ snd enumeratedPartition
+            right = map fst $ tail . snd $ enumeratedPartition
+        in (removed, left ++ right)
