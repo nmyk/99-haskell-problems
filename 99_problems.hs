@@ -1,3 +1,6 @@
+import System.Random (randomRIO)
+import Control.Monad (replicateM)
+
 -- 1. Implement `last`
 myLast :: [a] -> a
 myLast [] = error "Empty list"
@@ -175,3 +178,49 @@ removeAt' n l
             removed = fst . head $ snd enumeratedPartition
             right = map fst $ tail . snd $ enumeratedPartition
         in (removed, left ++ right)
+
+
+-- 21. Insert an element at a given position into a list
+insertAt :: a -> [a] -> Int -> [a]
+insertAt e l n
+    | (n < 1) || (n > length l) = error "Invalid index"
+    | otherwise = take (n - 1) l ++ e : drop (n - 1) l
+
+
+-- 22. Create a list containing all integers within a given range
+range :: Int -> Int -> [Int]
+range i j
+    | i > j = reverse $ range j i
+    | i == j = [i]
+    | otherwise = i:range (i+1) j
+
+
+-- 23. Extract a given number of randomly selected elements from a list
+rndSelect :: [a] -> Int -> IO [a] -- This solution allows duplicates
+rndSelect [] _ = return []
+rndSelect l n = do
+    indices <- replicateM n $ randomRIO (0, (length l - 1))
+    return [l!!i | i <- indices]
+
+rndSelect' :: [a] -> Int -> IO [a] -- This solution is without replacement
+rndSelect' l n
+    | n > length l = error "Trying to select too many items"
+    | null l = return []
+    | n == 0 = return []
+    | otherwise = do
+        index <- randomRIO (1, length l)
+        let (selected, rest) = removeAt' index l
+        do
+            let x = selected
+            xs <- rndSelect' rest (n - 1)
+            return (x:xs)
+
+
+-- 24. Draw k different random numbers from the set [1..n]
+diffSelect :: Int -> Int -> IO [Int]
+diffSelect k n = rndSelect' [1..n] k
+
+
+-- 25. Generate a random permutation of the elements of a list
+rndPermu :: [a] -> IO [a]
+rndPermu l =  rndSelect' l (length l)
